@@ -22,6 +22,7 @@ Module.register("MMM-BiathlonResults", {
 		maximumEntries: 10,
 		showTitle: true,
 		showNextEvent: false,
+		showFlag: false,
 
 		initialLoadDelay: 0, // 0 seconds delay
 		retryDelay: 2500, // 2,5 seconds
@@ -34,7 +35,7 @@ Module.register("MMM-BiathlonResults", {
 
 	// Define required styles
 	getStyles: function() {
-		return ["MMM-BiathlonResults.css", "font-awesome.css"];
+		return ["MMM-BiathlonResults.css", "font-awesome.css", "https://cdn.jsdelivr.net/npm/flag-icons/css/flag-icons.min.css"];
 	},
 
 	// Define required scripts
@@ -58,6 +59,7 @@ Module.register("MMM-BiathlonResults", {
 
 		this.loaded = false;
 		this.scheduleUpdate(this.config.initialLoadDelay);
+		this.loadTranslations();
 	},
 
 	// Override dom generator
@@ -100,9 +102,30 @@ Module.register("MMM-BiathlonResults", {
 
 				resultWrapper.appendChild(rankWrapper);
 
-				var nationWrapper = document.createElement("td");
-				nationWrapper.className = "nation light";
+			var nationWrapper = document.createElement("td");
+			nationWrapper.className = "nation light";
+			var countryCodeCorrections = {
+			"sw": "se",
+			"uk": "ua",
+			"su": "ch",
+			"bu": "bg",
+			"po": "pl",
+			"ka": "kz",
+			"ko": "kr"
+			};
+
+			if (this.config.showFlag) {
+
+				var countryCode = this.resultsItems[this.activeItem].results[i].Nat.toLowerCase().slice(0, 2);
+					if (countryCodeCorrections.hasOwnProperty(countryCode)) {
+					countryCode = countryCodeCorrections[countryCode];
+					}
+				var flagClass = "fi fi-" + countryCode;
+				nationWrapper.innerHTML = `<span class="${flagClass} flag-icon"></span>`;
+			} else {
 				nationWrapper.innerHTML = this.resultsItems[this.activeItem].results[i].Nat.toLowerCase();
+			}
+
 
 				resultWrapper.appendChild(nationWrapper);
 
@@ -146,9 +169,13 @@ Module.register("MMM-BiathlonResults", {
 			brLocation.appendChild(spacer);
 
 			var locationText = document.createElement("span");
-			locationText.innerHTML = " " + this.resultsItems[this.activeItem].location;
-			brLocation.appendChild(locationText);
+			var location = this.resultsItems[this.activeItem].location;
+			var translatedLocation = location.replace(/\(([^)]+)\)/, (match, country) => {
+				return `(${this.translate(country)})`;
+			});
 
+			locationText.innerHTML = " " + translatedLocation;
+			brLocation.appendChild(locationText);
 			wrapper.appendChild(brLocation);
 
 			var brDate = document.createElement('div');
@@ -206,7 +233,7 @@ Module.register("MMM-BiathlonResults", {
 		var resultsItems = [];
 
 		for(let i = 0; i < data.length; i++) {
-			var title = data[i].results.CupName + " (" + data[i].results.RaceCount + "/" + data[i].results.TotalRaces + ")";
+			var title = this.translate(data[i].results.CupName) + " (" + data[i].results.RaceCount + "/" + data[i].results.TotalRaces + ")";
 			var info = data[i].results.CupInfo;
 			var results = data[i].results.Rows;
 
@@ -221,7 +248,7 @@ Module.register("MMM-BiathlonResults", {
 					Log.error(this.name + ": Do not receive usable data for next event (this information will be hidden).");
 					this.config.showNextEvent = false;
 				} else {
-					var description = data[i].competitions[0].ShortDescription;
+					var description = this.translate(data[i].competitions[0].ShortDescription);
 					var location = data[i].events[0].Organizer + " (" + data[i].events[0].NatLong + ")";
 					var start = data[i].competitions[0].StartTime;
 				}
@@ -290,6 +317,31 @@ Module.register("MMM-BiathlonResults", {
 				this.config.cupid[i] = "BT" + this.config.seasonid + this.config.cupid[i];
 			}
 		}
-	}
+	},
+	
+	loadTranslations: function() {
+		var self = this;
+		var lang = config.language || "en";
+		var filePath = this.file("translations/" + lang + ".json");
+
+		var xhr = new XMLHttpRequest();
+		xhr.overrideMimeType("application/json");
+		xhr.open("GET", filePath, true);
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState === 4) {
+				if (xhr.status === 200) {
+					self.translations = JSON.parse(xhr.responseText);
+				} else {
+					self.translations = {};
+				}
+			}
+		};
+		xhr.send(null);
+	},
+
+	translate: function(text) {
+		if (!this.translations || !text) return text;
+		return this.translations[text] || text;
+	},
 
 });
