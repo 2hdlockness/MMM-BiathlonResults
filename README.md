@@ -1,5 +1,7 @@
 # Module: MMM-BiathlonResults
-This module displays biathlon results (World Cup and IBU Cup) including rank, nation, name and score. 
+This module displays biathlon results (World Cup and IBU Cup) including rank, nation, name and score.
+
+It can be configured in English and French.
 
 Title and current or next event display may be enabled or disabled independently. The number of ranks can be fixed.
 
@@ -9,27 +11,16 @@ Title and current or next event display may be enabled or disabled independently
 <img alt="MMM-BiathlonResults Screenshot #3" src="MMM-BiathlonResults_screenshot3.png" align="top" height="200px">
 </p>
 
-[MagicMirror Project on Github](https://github.com/MichMich/MagicMirror)
+![With Flag-icon](https://github.com/user-attachments/assets/7540541e-a8d8-493e-be98-b0cb2fa5c9c0)
+
 
 ## Installation:
 
 In your terminal, go to your MagicMirror's Module folder:
 ```shell
 cd ~/MagicMirror/modules
-```
-
-Clone this repository:
-```shell
 git clone https://github.com/grenagit/MMM-BiathlonResults
-```
-
-Go to your MMM-BiathlonResults's Module folder:
-```shell
-cd ~/MagicMirror/modules/MMM-BiathlonResults
-```
-
-Install dependencies:
-```shell
+cd MMM-BiathlonResults
 npm install
 ```
 
@@ -84,6 +75,7 @@ The following properties can be configured:
 | `animationSpeed`             | Speed of the update animation. (Milliseconds) <br><br> **Possible values:**`0` - `5000` <br> **Default value:** `1000` (1 second)
 | `maximumEntries`             | The maximum number of ranks shown. <br><br> **Possible values:** `0` - `100` <br> **Default value:** `10`
 | `showTitle`                  | Show the title of cup results <br><br> **Possible values:** `true` or `false` <br> **Default value:** `true`
+| `showFlag`                   | Shows the athlete's flag<br>  ![Capture](https://github.com/user-attachments/assets/c1b9d106-8da6-4180-9f5c-44df4f1255fc)  <br><br> **Possible values:** `true` or `false` <br> **Default value:** `false`
 | `showNextEvent`              | Show the next event. <br><br> **Possible values:** `true` or `false` <br> **Default value:** `false`
 | `initialLoadDelay`           | The initial delay before loading. If you have multiple modules that use the same API key, you might want to delay one of the requests. (Milliseconds) <br><br> **Possible values:** `1000` - `5000` <br> **Default value:**  `0`
 | `retryDelay`                 | The delay before retrying after a request failure. (Milliseconds) <br><br> **Possible values:** `1000` - `60000` <br> **Default value:**  `2500` (2,5 seconds)
